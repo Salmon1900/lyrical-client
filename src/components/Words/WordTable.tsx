@@ -10,27 +10,16 @@ import {
   Typography,
 } from '@mui/material';
 import WordContextDialog from './WordContextDialog';
+import { wordList } from '../../mock/songLyrics';
+import { Word } from '../../types/Word';
 
-interface Word {
-  name: string;
-  songName: string;
-  location: string;
-  verseNumber: number;
-  lineNumber: number;
-}
-
-const words: Word[] = [
-  { name: 'Grace', songName: 'Amazing Grace', location: 'Hymn', verseNumber: 1, lineNumber: 1 },
-  { name: 'Love', songName: 'All You Need Is Love', location: 'The Beatles', verseNumber: 1, lineNumber: 2 },
-  { name: 'Hope', songName: 'You’ve Got a Friend', location: 'James Taylor', verseNumber: 2, lineNumber: 3 },
-  { name: 'Joy', songName: 'Joy to the World', location: 'Christmas Carol', verseNumber: 1, lineNumber: 4 },
-  { name: 'Peace', songName: 'Let There Be Peace on Earth', location: 'Hymn', verseNumber: 1, lineNumber: 5 },
-];
 
 const WordTable: React.FC = () => {
     const [contextOpen, setContextOpen] = useState(false);
+    const [selectedWord, setSelectedWord] = useState<Word>();
 
-    const handleWordClick = () => {
+    const handleWordClick = (word: Word) => {
+        setSelectedWord(word);
         setContextOpen(true)
     }
 
@@ -47,25 +36,25 @@ const WordTable: React.FC = () => {
           <TableRow>
             <TableCell><Typography variant="h6">Word</Typography></TableCell>
             <TableCell><Typography variant="h6">Song Name</Typography></TableCell>
-            <TableCell><Typography variant="h6">Location</Typography></TableCell>
-            <TableCell><Typography variant="h6">Verse Number</Typography></TableCell>
-            <TableCell><Typography variant="h6">Line Number</Typography></TableCell>
+            <TableCell><Typography variant="h6">Verse</Typography></TableCell>
+            <TableCell><Typography variant="h6">Line</Typography></TableCell>
+            <TableCell><Typography variant="h6">Position in Line</Typography></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {words.map((word, index) => (
-              <TableRow key={index} onClick={() => handleWordClick()}>
+          {[...wordList].sort((a, b) => a.name.localeCompare(b.name)).map((word, index) => (
+              <TableRow key={index} onClick={() => handleWordClick(word)}>
               <TableCell>{word.name}</TableCell>
-              <TableCell>{word.songName}</TableCell>
-              <TableCell>{word.location}</TableCell>
-              <TableCell>{word.verseNumber}</TableCell>
-              <TableCell>{word.lineNumber}</TableCell>
+              <TableCell>{word.song_id}</TableCell>
+              <TableCell>{word.verse}</TableCell>
+              <TableCell>{word.line}</TableCell>
+              <TableCell>{word.numInLine}</TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
     </TableContainer>
-    <WordContextDialog onClose={handleClose} open={contextOpen}/>
+    {selectedWord && <WordContextDialog key={selectedWord.id} onClose={handleClose} open={contextOpen} selectedWord={selectedWord}/>}
     </>
   );
 };

@@ -2,7 +2,7 @@ export type Word = {
     id: number,
     name: string,
     location: number,
-    position: number,
+    numInLine: number,
     verse: number,
     line: number
     song_id: number
