@@ -7,17 +7,17 @@ const splitLyrics = (lyrics: string): Word[] => {
   const wordList: Word[] = [];
   let totalIndex = 0;
 
-  simpleSongLyrics.split("\n\n").forEach((verse, vIndex) => {
-    verse.split("\n").forEach((line, lIndex) => {
+  lyrics.split(/\n\n|\r\n\r\n/).forEach((verse, vIndex) => {
+    verse.split(/\n|\r\n/).forEach((line, lIndex) => {
       line.split(" ").forEach((word, wIndex) => {
         wordList.push({
           id: totalIndex,
-          name: word,
+          name: word.replace(/[^a-zA-Z0-9]/g, ''),
           verse: vIndex,
           line: lIndex,
-          numInLine: wIndex,
+          lineLocation: wIndex,
           location: totalIndex,
-          song_id: 1,
+          songId: 1,
         });
         totalIndex++;
       });
@@ -55,7 +55,7 @@ const SongForm: React.FC = () => {
     if (!songName) newErrors.songName = "Song name is required";
     if (!artist) newErrors.artist = "Artist name is required";
     if (!genre) newErrors.genre = "Genre is required";
-    if (!file) newErrors.file = "File is required";
+    if (!lyrics) newErrors.file = "File is required";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);

@@ -12,11 +12,14 @@ import {
 import WordContextDialog from './WordContextDialog';
 import { wordList } from '../../mock/songLyrics';
 import { Word } from '../../types/Word';
+import useWords from '../../hooks/words/useWords';
 
 
 const WordTable: React.FC = () => {
     const [contextOpen, setContextOpen] = useState(false);
     const [selectedWord, setSelectedWord] = useState<Word>();
+    const { isPending, error, words } = useWords();
+
 
     const handleWordClick = (word: Word) => {
         setSelectedWord(word);
@@ -30,8 +33,8 @@ const WordTable: React.FC = () => {
 
   return (
     <>
-    <TableContainer component={Paper}>
-      <Table>
+    <TableContainer component={Paper} style={{maxHeight: 600, overflowY: 'scroll'}}>
+      <Table stickyHeader>
         <TableHead>
           <TableRow>
             <TableCell><Typography variant="h6">Word</Typography></TableCell>
@@ -42,13 +45,13 @@ const WordTable: React.FC = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {[...wordList].sort((a, b) => a.name.localeCompare(b.name)).map((word, index) => (
+          {[...words].sort((a, b) => a.name.localeCompare(b.name)).map((word, index) => (
               <TableRow key={index} onClick={() => handleWordClick(word)}>
               <TableCell>{word.name}</TableCell>
-              <TableCell>{word.song_id}</TableCell>
-              <TableCell>{word.verse}</TableCell>
-              <TableCell>{word.line}</TableCell>
-              <TableCell>{word.numInLine}</TableCell>
+              <TableCell>{word.songId}</TableCell>
+              <TableCell>{word.verse + 1}</TableCell>
+              <TableCell>{word.line + 1}</TableCell>
+              <TableCell>{word.lineLocation + 1}</TableCell>
             </TableRow>
           ))}
         </TableBody>

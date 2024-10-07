@@ -57,9 +57,9 @@ simpleSongLyrics.split("\n\n").forEach((verse, vIndex) => {
         name: word,
         verse: vIndex,
         line: lIndex,
-        numInLine: wIndex,
+        lineLocation: wIndex,
         location: totalIndex,
-        song_id: 1
+        songId: 1
       });
       totalIndex++;
     });

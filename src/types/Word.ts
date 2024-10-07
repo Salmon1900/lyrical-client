@@ -2,8 +2,8 @@ export type Word = {
     id: number,
     name: string,
     location: number,
-    numInLine: number,
+    lineLocation: number,
     verse: number,
     line: number
-    song_id: number
+    songId: number
 }

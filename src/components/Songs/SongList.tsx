@@ -1,6 +1,7 @@
 import React from "react";
 import { List, ListItem, ListItemText, Divider, Box } from "@mui/material";
 import { Song } from "../../types/Song";
+import useFetchSongs from "../../hooks/songs/useFetchSongs";
 
 const songs: Song[] = [
   { id: 1, name: "Blinding Lights", artist: "The Weeknd", genre: "Pop" },
@@ -46,10 +47,11 @@ const songs: Song[] = [
 ];
 
 const SongList = () => {
+  const {isPending, error, songs} = useFetchSongs();
   return (
     <Box sx={{ maxHeight: "70vh", overflowY: "auto" }}>
       <List>
-        {songs.map((song) => (
+        {(songs || []).map((song) => (
           <div key={song.id}>
             <ListItem>
               <ListItemText primary={song.name} secondary={song.artist} />

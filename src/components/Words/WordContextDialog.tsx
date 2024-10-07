@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,6 +10,7 @@ import {
 import { simpleSongLyrics, wordList } from "../../mock/songLyrics";
 import { Word } from "../../types/Word";
 import { SeperatedLyrics, SeperatedVerse } from "../../types/Seperated";
+import useWords from "../../hooks/words/useWords";
 
 const paragraphs = [
   "This is the first paragraph.",
@@ -21,12 +22,12 @@ const paragraphs = [
 
 const formatSongFromLyrics = (words: Word[]): SeperatedLyrics => {
   const seperatedLyrics: SeperatedLyrics = words.reduce((obj, word) => {
-    const { verse, line, numInLine, name } = word;
+    const { verse, line, lineLocation, name } = word;
 
     if (!obj[verse]) obj[verse] = [];
     if (!obj[verse][line]) obj[verse][line] = [];
 
-    obj[verse][line][numInLine] = name;
+    obj[verse][line][lineLocation] = name;
 
     return obj;
   }, [] as any);
@@ -52,7 +53,7 @@ const seperateSongLyrics = (song: string): SeperatedLyrics => {
   return seperatedLyrics;
 };
 
-const combineVerseLyrics = (seperatedVerse: SeperatedVerse) => {
+const combineVerseLyrics = (seperatedVerse: SeperatedVerse = []) => {
   const lines = seperatedVerse.map((line) => line.join(" "));
   return lines.join("\n");
 };
@@ -68,9 +69,10 @@ const WordContextDialog = ({
   selectedWord,
 }: IWordContextDialogProps) => {
   const [currentVerse, setCurrentVerse] = useState(selectedWord.verse);
-  const [seperatedLyrics, setSeperatedLyrics] = useState<SeperatedLyrics>(() =>
-    formatSongFromLyrics(wordList)
-  );
+//   const { words } = useWords(10);
+  const { words } = useWords(selectedWord.songId);
+
+  const seperatedLyrics = useMemo(() => formatSongFromLyrics(words), [words])
 
   const handleNext = () => {
     setCurrentVerse((prevIndex) => (prevIndex + 1) % seperatedLyrics.length);
@@ -87,9 +89,9 @@ const WordContextDialog = ({
     const words = line.split(" ");
     return (
         <h2  style={{ marginTop: 5, marginBottom: 5}}>
-            {words.slice(0, selectedWord.numInLine).join(" ") + " "}
+            {words.slice(0, selectedWord.lineLocation).join(" ") + " "}
             <span style={{ color: 'cornflowerblue'}}>{selectedWord.name}</span>
-            {" " + words.slice(selectedWord.numInLine + 1).join(" ")}
+            {" " + words.slice(selectedWord.lineLocation + 1).join(" ")}
         </h2>
     )
   }
