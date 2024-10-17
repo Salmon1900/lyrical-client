@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './api/config';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const queryClinet = new QueryClient();
 
@@ -18,6 +19,7 @@ root.render(
     <BrowserRouter>
       <App />
     </BrowserRouter>
+      <ReactQueryDevtools initialIsOpen={false}/>
     </QueryClientProvider>
   </React.StrictMode>
 );

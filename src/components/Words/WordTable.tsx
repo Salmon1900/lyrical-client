@@ -48,7 +48,7 @@ const WordTable: React.FC = () => {
           {[...words].sort((a, b) => a.name.localeCompare(b.name)).map((word, index) => (
               <TableRow key={index} onClick={() => handleWordClick(word)}>
               <TableCell>{word.name}</TableCell>
-              <TableCell>{word.songId}</TableCell>
+              <TableCell>{word.songName}</TableCell>
               <TableCell>{word.verse + 1}</TableCell>
               <TableCell>{word.line + 1}</TableCell>
               <TableCell>{word.lineLocation + 1}</TableCell>

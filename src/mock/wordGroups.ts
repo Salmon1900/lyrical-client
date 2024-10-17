@@ -4,17 +4,15 @@ export const wordGroups: WordGroup[] = [
     {
       id: 1,
       name: 'Fruits',
-      words: [
-        { id: 1, name: 'Apple' },
-        { id: 2, name: 'Banana' },
+      wordIds: [
+        9, 10, 11
       ],
     },
     {
       id: 2,
       name: 'Colors',
-      words: [
-        { id: 3, name: 'Red' },
-        { id: 4, name: 'Blue' },
+      wordIds: [
+        4, 5, 6, 8
       ],
     },
   ];

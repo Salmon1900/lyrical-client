@@ -5,5 +5,6 @@ export type Word = {
     lineLocation: number,
     verse: number,
     line: number
-    songId: number
+    songId: number,
+    songName?: string
 }

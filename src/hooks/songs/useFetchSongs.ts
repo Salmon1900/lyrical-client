@@ -5,6 +5,7 @@ import { getSongs } from '../../api/songs';
 function useFetchSongs() {
     const { isPending, data: songsRes, error} = useQuery({
         queryKey: ['songs'],
+        staleTime: 10000,
         queryFn: getSongs
     })
 

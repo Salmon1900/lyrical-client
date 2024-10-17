@@ -84,7 +84,7 @@ const ModuleMenu = () => {
           My Phrases
         </MenuItem>
       </Menu>
-      <WordGroupDialog open={wordGroupDialogOpen} onClose={() => setWordGroupDialogOpen(false)} wordGroups={wordGroups}/>
+      <WordGroupDialog open={wordGroupDialogOpen} onClose={() => setWordGroupDialogOpen(false)}/>
     </>
   );
 }

@@ -1,5 +1,5 @@
 // WordGroupDialog.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -11,21 +11,57 @@ import {
   ListItemText,
   TextField,
   IconButton,
-} from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
-import { WordGroup } from '../../types/WordGroups';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+} from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import { WordGroup } from "../../types/WordGroups";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import useWords from "../../hooks/words/useWords";
+import useGroups from "../../hooks/groups/useGroups";
+import { Word } from "../../types/Word";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { addWordToGroup, createGroup, deleteWordFromGroup } from "../../api/groups";
+
+const capitalize = (word: string) => `${word[0].toUpperCase()}${word.slice(1)}`;
 
 interface IWordGroupDialogProps {
   open: boolean;
   onClose: () => void;
-  wordGroups: WordGroup[];
 }
 
-const WordGroupDialog = ({ open, onClose, wordGroups }: IWordGroupDialogProps) => {
+type WordsInGroup = {
+  [word: string]: number;
+};
+
+const WordGroupDialog = ({ open, onClose }: IWordGroupDialogProps) => {
+  const { groups } = useGroups();
   const [selectedGroup, setSelectedGroup] = useState<WordGroup | null>(null);
-  const [newWord, setNewWord] = useState('');
+  const queryClient = useQueryClient();
+  const { words } = useWords();
+  const [newValue, setNewValue] = useState("");
+
+  useEffect(
+    () =>
+      setSelectedGroup((prev) => groups.find((g) => g.id == prev?.id) || null),
+    [groups]
+  );
+
+  const { mutate: addWord } = useMutation({
+    mutationFn: addWordToGroup,
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["groups"] }),
+    onSuccess: () => setNewValue(""),
+  });
+
+  const { mutate: addGroup } = useMutation({
+    mutationFn: createGroup,
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["groups"] }),
+    onSuccess: () => setNewValue(""),
+  });
+
+  const { mutate: removeWord } = useMutation({
+    mutationFn: deleteWordFromGroup,
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["groups"] }),
+  });
 
   const handleGroupClick = (group: WordGroup) => {
     setSelectedGroup(group);
@@ -33,21 +69,21 @@ const WordGroupDialog = ({ open, onClose, wordGroups }: IWordGroupDialogProps) =
 
   const handelExitSelection = () => setSelectedGroup(null);
 
-  const handleAddWord = (/* word: Word*/) => {
-    if (newWord.trim() && selectedGroup) {
-      const updatedWords = [
-        ...selectedGroup.words,
-        { id: Date.now(), text: newWord },
-      ];
-      setSelectedGroup({ ...selectedGroup, words: (updatedWords as any) });
-      setNewWord('');
+  const handleAddGroup = (/* word: Word*/) => {
+    if (newValue.trim()) {
+      addGroup({ name: newValue });
     }
   };
 
-  const handleRemoveWord = (id: number) => {
+  const handleAddWord = (/* word: Word*/) => {
+    if (newValue.trim() && selectedGroup) {
+      addWord({ groupId: selectedGroup.id, word: newValue });
+    }
+  };
+
+  const handleRemoveWord = (word: string) => {
     if (selectedGroup) {
-      const updatedWords = selectedGroup.words.filter(word => word.id !== id);
-      setSelectedGroup({ ...selectedGroup, words: updatedWords });
+      removeWord({ groupId: selectedGroup.id, word });
     }
   };
 
@@ -56,13 +92,23 @@ const WordGroupDialog = ({ open, onClose, wordGroups }: IWordGroupDialogProps) =
     onClose();
   };
 
+  const selectedGroupWords: WordsInGroup = useMemo(() => {
+    return words.reduce((obj: WordsInGroup, curr: Word) => {
+      // If word in group add to counting
+      if (selectedGroup?.wordIds.includes(curr.id)) {
+        let key = curr.name.toLowerCase();
+        return { ...obj, [key]: obj[key] ? obj[key] + 1 : 1 };
+      } else return obj;
+    }, {});
+  }, [selectedGroup, words]);
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle>Word Groups</DialogTitle>
       <DialogContent>
         {!selectedGroup ? (
           <List>
-            {wordGroups.map(group => (
+            {groups.map((group) => (
               <ListItem key={group.id} onClick={() => handleGroupClick(group)}>
                 <ListItemText primary={group.name} />
               </ListItem>
@@ -70,36 +116,57 @@ const WordGroupDialog = ({ open, onClose, wordGroups }: IWordGroupDialogProps) =
           </List>
         ) : (
           <>
-          <div>
-            <IconButton onClick={handelExitSelection}><ArrowBackIcon/></IconButton>
-            <h2>{selectedGroup.name}</h2>
-          </div>
+            <div>
+              <IconButton onClick={handelExitSelection}>
+                <ArrowBackIcon />
+              </IconButton>
+              <h2>{selectedGroup.name}</h2>
+            </div>
             <List>
-              {selectedGroup.words.map(word => (
-                <ListItem key={word.id} secondaryAction={
-                  <IconButton edge="end" onClick={() => handleRemoveWord(word.id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                }>
-                  <ListItemText primary={word.name} />
-                </ListItem>
-              ))}
+              {Object.entries(selectedGroupWords).map((word) =>
+                word ? (
+                  <ListItem
+                    key={word[0]}
+                    sx={{ borderLeft: "1px solid grey", marginBottom: 2 }}
+                    secondaryAction={
+                      <IconButton
+                        edge="end"
+                        onClick={() => handleRemoveWord(word[0])}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    }
+                  >
+                    <ListItemText
+                      primary={`${capitalize(word[0])}   ►   ${
+                        word[1]
+                      } occurrences`}
+                    />
+                  </ListItem>
+                ) : (
+                  <p>Error finding word</p>
+                )
+              )}
             </List>
-            <TextField
-              label="New Word"
-              variant="outlined"
-              value={newWord}
-              onChange={(e) => setNewWord(e.target.value)}
-              fullWidth
-            />
-            <IconButton onClick={handleAddWord}>
-              <AddIcon />
-            </IconButton>
           </>
         )}
+        <div style={{ display: "flex", justifyContent: "space-around" }}>
+          <TextField
+            label={selectedGroup ? "Add new word" : "Create group"}
+            variant="outlined"
+            value={newValue}
+            onChange={(e) => setNewValue(e.target.value)}
+            fullWidth
+          />
+          <IconButton onClick={(e) => selectedGroup ? handleAddWord() : handleAddGroup()}>
+            <AddIcon />
+          </IconButton>
+        </div>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="primary">Close</Button>
+        <Button onClick={handleClose} color="primary">
+          Close
+        </Button>
       </DialogActions>
     </Dialog>
   );

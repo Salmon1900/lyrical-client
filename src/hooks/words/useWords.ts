@@ -10,7 +10,10 @@ function useWords(songId: number | null = null) {
     })
 
     const songs = songsRes?.data;
-    let words = songs?.map(song => song.words).flat(1);
+    let words = songs?.map(song => {
+        const wordsArray = song.words;
+        return wordsArray.map(word => ({...word, songName: song.name}))
+    }).flat(1);
     if(songId) words = words?.filter(w => w.songId === songId)
 
     return { isPending, words: words || [], error}
