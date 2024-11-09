@@ -77,12 +77,12 @@ const ModuleMenu = () => {
           My Word Groups
         </MenuItem>
         <Divider />
-        <MenuItem onClick={handleClose}>
+        {/* <MenuItem onClick={handleClose}>
           <ListItemIcon>
             <TextDecreaseIcon fontSize="small" />
           </ListItemIcon>
           My Phrases
-        </MenuItem>
+        </MenuItem> */}
       </Menu>
       <WordGroupDialog open={wordGroupDialogOpen} onClose={() => setWordGroupDialogOpen(false)}/>
     </>

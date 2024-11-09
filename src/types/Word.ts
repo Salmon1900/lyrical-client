@@ -17,4 +17,11 @@ export type WordFilters = {
     line?: number
 }
 
+export type WordRecord = {
+    word: string;
+    occurenceCount: number;
+    songs: string[];
+    instances: Word[];
+  };
+
 // export type WordLocation = Omit<Word, "name", ''>

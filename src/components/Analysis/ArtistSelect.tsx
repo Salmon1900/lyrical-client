@@ -5,16 +5,30 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { useQuery } from '@tanstack/react-query';
+import useFetchSongs from '../../hooks/songs/useFetchSongs';
+import { Song } from '../../types/Song';
 
+interface IArtistSelectProps {
+  selectedSongs: Song[],
+  setSelectedSongs: (songs: Song[]) => void
+}
 
-
-export default function ArtistSelect() {
+export default function ArtistSelect({ selectedSongs, setSelectedSongs}: IArtistSelectProps) {
   const [artist, setArtist] = React.useState('');
+  const { songs } = useFetchSongs();
 
-  const { data: artists, isPending, error } = useQuery({
-    queryKey: ['artists'],
-    queryFn: async () => ["artist1", 'artist2', 'artist3']
-  })
+  const artists = React.useMemo(() => {
+    const artistList = (songs || []).map(s => s.artist);
+
+    // return artistList
+    return Array.from(new Set(artistList))
+  }, [songs])
+
+  React.useEffect(() => {
+    if(artist && songs){
+      setSelectedSongs(songs.filter(s => s.artist === artist))
+    }
+  }, [artist, songs, setSelectedSongs])
 
   const handleChange = (event: SelectChangeEvent) => {
     setArtist(event.target.value as string);

@@ -8,20 +8,16 @@ import {
   TableRow,
   Paper,
   Typography,
+  Button,
 } from "@mui/material";
 import WordContextDialog from "./WordContextDialog";
 import { wordList } from "../../mock/songLyrics";
-import { Word, WordFilters } from "../../types/Word";
+import { Word, WordFilters, WordRecord } from "../../types/Word";
 import useWords from "../../hooks/words/useWords";
 import WordContextListDialog from "./WordContextListDialog";
 import WordTableFilters from "./WordTableFilters";
-
-type WordRecord = {
-  word: string;
-  occurenceCount: number;
-  songs: string[];
-  instances: Word[];
-};
+import { Download } from "@mui/icons-material";
+import { createWordExcel } from "./excelExport";
 
 type WordRecordObj = {
   [key: string]: WordRecord;
@@ -73,19 +69,20 @@ const WordTable: React.FC = () => {
   const [filters, setFilters] = useState<WordFilters>({});
   const { isPending, error, words } = useWords();
 
+  const filteredWords = useMemo(() => words.filter(
+    (word) =>
+      (!filters.ids ||
+        !filters.ids.length ||
+        filters.ids.includes(word.id)) &&
+      (!filters.songIds ||
+        !filters.songIds.length ||
+        filters.songIds.includes(word.songId)) &&
+      (!filters.text || word.name.toLowerCase().includes(filters.text.toLowerCase())) &&
+      (filters.verse === undefined || word.verse === filters.verse) &&
+      (filters.line === undefined || word.line === filters.line)
+  ), [words, filters]);
+
   const wordRecords: WordRecord[] = useMemo(() => {
-    const filteredWords = words.filter(
-      (word) =>
-        (!filters.ids ||
-          !filters.ids.length ||
-          filters.ids.includes(word.id)) &&
-        (!filters.songIds ||
-          !filters.songIds.length ||
-          filters.songIds.includes(word.songId)) &&
-        (!filters.text || word.name.toLowerCase().includes(filters.text.toLowerCase())) &&
-        (filters.verse === undefined || word.verse === filters.verse) &&
-        (filters.line === undefined || word.line === filters.line)
-    );
     const wordRecordObj = filteredWords.reduce((obj, currWord) => {
       let newObj = { ...obj };
       let w = currWord.name.toLowerCase();
@@ -107,7 +104,7 @@ const WordTable: React.FC = () => {
     }, {} as WordRecordObj);
 
     return Object.values(wordRecordObj);
-  }, [words, filters]);
+  }, [filteredWords]);
 
   const handleWordClick = (wordRecord: WordRecord) => {
     if (wordRecord.instances.length === 1) {
@@ -137,6 +134,7 @@ const WordTable: React.FC = () => {
 
   return (
     <>
+      <Button onClick={() => createWordExcel('words.xlsx', 'words', filteredWords)}>Export <Download/></Button>
       <div style={{ display: 'flex'}}>
         <TableContainer
           component={Paper}
@@ -209,6 +207,7 @@ const WordTable: React.FC = () => {
             </TableBody>
           </Table>
         </TableContainer>
+        
         <WordTableFilters filters={filters} setFilters={setFilters} />
         {!!wordOptions.length && (
           <WordContextListDialog

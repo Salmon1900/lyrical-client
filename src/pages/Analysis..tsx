@@ -1,5 +1,5 @@
 import { Button, MenuItem, Select } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Song } from "../types/Song";
 import { AnalysisSelectionType } from "../types/Analysis";
 import SongsAnalysis from "../components/Analysis/SongsAnaysis";
@@ -9,28 +9,42 @@ import ArtistSelect from "../components/Analysis/ArtistSelect";
 import ShowAnalysisButton from "../components/Analysis/ShowAnalysisButton";
 
 const Analysis = () => {
-  const [songs, setSongs] = useState<Song[]>([]);
+  const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
   const [analysisSelectionType, setAnalysisSelectionType] =
     useState<AnalysisSelectionType>("Songs");
   const [showAnalysis, setShowAnalysis] = useState(false);
 
+  useEffect(() => { setSelectedSongs([])}, [analysisSelectionType])
+
   return (
-    <div style={{ display: 'flex', justifyContent: 'center' }}>
+    <div style={{ display: "flex", justifyContent: "center" }}>
       {!showAnalysis ? (
         <div>
           <AnalysisSelectionSwitch
             anaysisSelectionType={analysisSelectionType}
             setAnalysisSelectionType={setAnalysisSelectionType}
           />
-          {
-            analysisSelectionType === "Songs" ? <SongsMultiSelect songs={songs} setSongs={setSongs}/> : <ArtistSelect/>
-          }
-          <Button onClick={() => setShowAnalysis(true)} variant="contained">Analyise!</Button>
+          {analysisSelectionType === "Songs" ? (
+            <SongsMultiSelect
+              selectedSongs={selectedSongs}
+              setSelectedSongs={setSelectedSongs}
+            />
+          ) : (
+            <ArtistSelect
+              selectedSongs={selectedSongs}
+              setSelectedSongs={setSelectedSongs}
+            />
+          )}
+          <Button onClick={() => setShowAnalysis(true)} variant="contained">
+            Analyise!
+          </Button>
         </div>
       ) : (
-          <div>
-            <Button onClick={() => setShowAnalysis(false)} variant="contained">Reset</Button>
-            <SongsAnalysis songs={songs} />
+        <div>
+          <Button onClick={() => setShowAnalysis(false)} variant="contained">
+            Reset
+          </Button>
+          <SongsAnalysis songs={selectedSongs} />
         </div>
       )}
     </div>
