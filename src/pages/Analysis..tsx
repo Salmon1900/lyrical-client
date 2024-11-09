@@ -19,7 +19,7 @@ const Analysis = () => {
   return (
     <div style={{ display: "flex", justifyContent: "center" }}>
       {!showAnalysis ? (
-        <div>
+        <div style={{ width: '30vw', marginTop: '37vh'}}>
           <AnalysisSelectionSwitch
             anaysisSelectionType={analysisSelectionType}
             setAnalysisSelectionType={setAnalysisSelectionType}
@@ -35,12 +35,12 @@ const Analysis = () => {
               setSelectedSongs={setSelectedSongs}
             />
           )}
-          <Button onClick={() => setShowAnalysis(true)} variant="contained">
+          <Button onClick={() => setShowAnalysis(true)} variant="contained" fullWidth style={{ marginTop: 20}}>
             Analyise!
           </Button>
         </div>
       ) : (
-        <div>
+        <div style={{ textAlign: 'center'}}>
           <Button onClick={() => setShowAnalysis(false)} variant="contained">
             Reset
           </Button>
