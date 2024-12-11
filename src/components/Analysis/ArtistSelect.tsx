@@ -6,11 +6,11 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { useQuery } from '@tanstack/react-query';
 import useFetchSongs from '../../hooks/songs/useFetchSongs';
-import { Song } from '../../types/Song';
+import { Song, SongExpanded } from '../../types/Song';
 
 interface IArtistSelectProps {
-  selectedSongs: Song[],
-  setSelectedSongs: (songs: Song[]) => void
+  selectedSongs: SongExpanded[],
+  setSelectedSongs: (songs: SongExpanded[]) => void
 }
 
 export default function ArtistSelect({ selectedSongs, setSelectedSongs}: IArtistSelectProps) {

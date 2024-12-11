@@ -1,3 +1,7 @@
+import { DeviceObj, RepetitionObj } from "../../types/Devices";
+import { Word } from "../../types/Word";
+import { formatSongFromLyrics } from "../Words/wordUtils";
+
 const songLyrics = `
   You are like the sunshine, bright and warm,
   Your love is a fire, burning in my heart.
@@ -7,64 +11,128 @@ const songLyrics = `
   And echoes of love ring evermore.
 `;
 
-export function findSimiles(text: string) {
+
+export function findSimiles(songWords: Word[]): DeviceObj {
+  let similesCount = 0;
+  let similes: string[] = [];
+  const seperatedLyrics = formatSongFromLyrics(songWords);
   const similePattern = /\blike\b|\bas\b/g;
-  return text.match(similePattern) ? "Simile found" : "No similes found";
+
+  seperatedLyrics.forEach(verse => {
+    verse.forEach(line => {
+      const textLine = line.join(' ');
+      const matches = textLine.match(similePattern);
+      if(matches){
+        similesCount += matches.length;
+        similes.push(textLine);
+      }
+    })
+  })
+
+  return {
+    count: similesCount,
+    items: similes
+  }
 }
 
-export function findMetaphors(text: string) {
+export function findMetaphors(songWords: Word[]): DeviceObj {
+  let metaphoresCount = 0;
+  let metaphores: string[] = [];
+  const seperatedLyrics = formatSongFromLyrics(songWords);
   const metaphorPattern = /\b(is|are|was|were)\b.+\b(a|an|the)\b/g;
-  const matches = text.match(metaphorPattern);
-  return matches ? `Metaphor found: ${matches.join(', ')}` : "No metaphors found";
+
+  seperatedLyrics.forEach(verse => {
+    verse.forEach(line => {
+      const textLine = line.join(' ');
+      const matches = textLine.match(metaphorPattern);
+      if(matches){
+        metaphoresCount += matches.length;
+        metaphores.push(textLine);
+      }
+    })
+  })
+
+  return {
+    count: metaphoresCount,
+    items: metaphores
+  }
 }
 
-export function findAlliterations(text: string) {
+export function findAlliterations(songWords: Word[]): DeviceObj {
+  let alliterationsCount = 0;
+  let alliterations: string[] = [];
+  const seperatedLyrics = formatSongFromLyrics(songWords);
   const alliterationPattern = /\b([a-z])([a-z]*)\b\s+\b\1([a-z]*)\b/gi;
-  const matches = text.match(alliterationPattern);
-  return matches ? `Alliteration found: ${matches.join(', ')}` : "No alliterations found";
+
+  seperatedLyrics.forEach(verse => {
+    verse.forEach(line => {
+      const textLine = line.join(' ');
+      const matches = textLine.match(alliterationPattern);
+      if(matches){
+        const validMatches = matches.filter(s => {
+          const [first, second] = s.split(" ");
+          return first.toLowerCase() !== second.toLowerCase() 
+        })
+        alliterationsCount += validMatches.length;
+        alliterations.push(...validMatches);
+      }
+    })
+  })
+
+  return {
+    count: alliterationsCount,
+    items: alliterations
+  }
 }
 
-export function findRepetitions(text: string) {
-  const words = text.toLowerCase().split(/\W+/);
-  const wordCounts = words.reduce((acc: any, word) => {
-    acc[word] = (acc[word] || 0) + 1;
+export function findRepetitions(songWords: Word[]): DeviceObj {
+  let repetitions: RepetitionObj[] = [];
+  const wordCounts = songWords.reduce((acc: any, word) => {
+    acc[word.name] = (acc[word.name] || 0) + 1;
     return acc;
   }, {});
 
-  const repeatedWords = Object.keys(wordCounts).filter(word => wordCounts[word] > 1);
-  return repeatedWords.length > 0 ? `Repeated words: ${repeatedWords.join(', ')}` : "No repetitions found";
+  Object.keys(wordCounts).forEach(word => {
+    if(wordCounts[word] > 1){
+      repetitions.push({ word, occurences: wordCounts[word] })
+    }
+  });
+  repetitions.sort((r1, r2) => r2.occurences - r1.occurences);
+  return {
+    count: repetitions.length,
+    items: repetitions.map(r => `${r.word} - ${r.occurences} times`)
+  }
 }
 
-export function findRhymes(text: string) {
-    const lines = text.split(/\n+/).filter(line => line.trim()); // Split by lines and filter out empty lines
-    const wordsAtLineEnds = lines.map(line => {
-      const words = line.trim().split(/\s+/);
-      return words[words.length - 1]; // Get the last word in each line
-    });
-  
-    const rhymePairs = [];
-  
-    // Function to extract the last part of a word (for rhyme detection)
-    const getEnding = (word: string, length = 3) => word.slice(-length).toLowerCase();
-  
-    for (let i = 0; i < wordsAtLineEnds.length; i++) {
-      for (let j = i + 1; j < wordsAtLineEnds.length; j++) {
-        if (getEnding(wordsAtLineEnds[i]) === getEnding(wordsAtLineEnds[j])) {
-          rhymePairs.push([wordsAtLineEnds[i], wordsAtLineEnds[j]]);
-        }
-      }
-    }
-  
-    return rhymePairs.length > 0 
-      ? `Rhyming pairs found: ${rhymePairs.map(pair => pair.join(" and ")).join(', ')}`
-      : "No rhymes found";
-  }
+const getEnding = (word: string, length = 3) => word.slice(-length).toLowerCase();
 
-function analyzeSong(song: string) {
-  console.log(findSimiles(song));
-  console.log(findMetaphors(song));
-  console.log(findAlliterations(song));
-  console.log(findRepetitions(song));
+export const findRhymesPairs = (songWords: Word[]) => {
+  let rhymeCount = 0;
+  let rhymes: string[] = [];
+  const seperatedLyrics = formatSongFromLyrics(songWords);
+  seperatedLyrics.forEach(verse => {
+    const lineCount = verse.length;
+    for (let i = 0; i < lineCount; i++) {
+      for (let j = i + 1; j < lineCount; j++) {
+        const iLine = verse[i];
+        const jLine = verse[j];
+        const iLastWord = iLine[iLine.length - 1];
+        const jLastWord = jLine[jLine.length - 1];
+
+        if(iLastWord !== jLastWord && getEnding(iLastWord) === getEnding(jLastWord)){
+          rhymeCount++
+          rhymes.push(`${iLastWord} - ${jLastWord}`)
+        }
+        
+      }
+      
+    }
+  })
+
+  return {
+    count: rhymeCount,
+    items: rhymes
+  }
 }
 
 // analyzeSong(songLyrics);

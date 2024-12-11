@@ -20,6 +20,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPhrase, deletePhrase } from "../../api/phrases";
 import usePhrases from "../../hooks/phrases/usePhrases";
 import { Delete } from "@mui/icons-material";
+import { formatSongFromLyrics } from "./wordUtils";
 
 const paragraphs = [
   "This is the first paragraph.",
@@ -28,21 +29,6 @@ const paragraphs = [
 ];
 
 // [ , , , , ]
-
-const formatSongFromLyrics = (words: Word[]): SeperatedLyrics => {
-  const seperatedLyrics: SeperatedLyrics = words.reduce((obj, word) => {
-    const { verse, line, lineLocation, name } = word;
-
-    if (!obj[verse]) obj[verse] = [];
-    if (!obj[verse][line]) obj[verse][line] = [];
-
-    obj[verse][line][lineLocation] = name;
-
-    return obj;
-  }, [] as any);
-
-  return seperatedLyrics;
-};
 
 const seperateSongLyrics = (song: string): SeperatedLyrics => {
   const seperatedLyrics: SeperatedLyrics = [];

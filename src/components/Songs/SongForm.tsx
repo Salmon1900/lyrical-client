@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { TextField, Button, Grid, Typography, Container } from "@mui/material";
 import useAddSong from "../../hooks/songs/useAddSong";
 import { Word } from "../../types/Word";
@@ -36,6 +36,7 @@ const SongForm: React.FC = () => {
   const [lyrics, setLyrics] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   let fileReader: FileReader;
+  const fileInputRef: any = useRef(null);
 
   const handleFileRead = (ev: ProgressEvent<FileReader>) => {
     const content = fileReader.result;
@@ -74,6 +75,9 @@ const SongForm: React.FC = () => {
     });
 
     // Reset the form
+    if(fileInputRef.current){
+      fileInputRef.current.value = "";
+    }
     setSongName("");
     setArtist("");
     setGenre("");
@@ -123,6 +127,8 @@ const SongForm: React.FC = () => {
             <input
               type="file"
               accept=".txt"
+              id="fileInput"
+              ref={fileInputRef}
               onChange={(e) => {
                 if (e.target.files) {
                   handleFileChosen(e.target.files[0]);

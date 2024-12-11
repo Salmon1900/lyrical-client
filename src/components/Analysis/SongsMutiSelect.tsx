@@ -7,7 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import Chip from '@mui/material/Chip';
-import { Song } from '../../types/Song';
+import { Song, SongExpanded } from '../../types/Song';
 import useFetchSongs from '../../hooks/songs/useFetchSongs';
 import { Autocomplete, TextField } from '@mui/material';
 
@@ -22,22 +22,9 @@ const MenuProps = {
   },
 };
 
-const names = [
-  'Oliver Hansen',
-  'Van Henry',
-  'April Tucker',
-  'Ralph Hubbard',
-  'Omar Alexander',
-  'Carlos Abbott',
-  'Miriam Wagner',
-  'Bradley Wilkerson',
-  'Virginia Andrews',
-  'Kelly Snyder',
-];
-
 interface ISongMultiSelectProps {
-    selectedSongs: Song[],
-    setSelectedSongs: (songs: Song[]) => void
+    selectedSongs: SongExpanded[],
+    setSelectedSongs: (songs: SongExpanded[]) => void
 }
 
 export default function SongsMultiSelect({ selectedSongs, setSelectedSongs}: ISongMultiSelectProps) {
