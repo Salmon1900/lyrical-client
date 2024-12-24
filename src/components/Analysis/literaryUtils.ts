@@ -2,16 +2,6 @@ import { DeviceObj, RepetitionObj } from "../../types/Devices";
 import { Word } from "../../types/Word";
 import { formatSongFromLyrics } from "../Words/wordUtils";
 
-const songLyrics = `
-  You are like the sunshine, bright and warm,
-  Your love is a fire, burning in my heart.
-  Dancing in the dark, we find the light,
-  Always and forever, we’ll be alright.
-  She sells sea shells by the seashore,
-  And echoes of love ring evermore.
-`;
-
-
 export function findSimiles(songWords: Word[]): DeviceObj {
   let similesCount = 0;
   let similes: string[] = [];
@@ -104,7 +94,7 @@ export function findRepetitions(songWords: Word[]): DeviceObj {
   }
 }
 
-const getEnding = (word: string, length = 3) => word.slice(-length).toLowerCase();
+const getEnding = (word: string, length = 2) => word.slice(-length).toLowerCase();
 
 export const findRhymesPairs = (songWords: Word[]) => {
   let rhymeCount = 0;
@@ -134,5 +124,3 @@ export const findRhymesPairs = (songWords: Word[]) => {
     items: rhymes
   }
 }
-
-// analyzeSong(songLyrics);

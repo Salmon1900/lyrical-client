@@ -20,7 +20,7 @@ import useWords from "../../hooks/words/useWords";
 import useGroups from "../../hooks/groups/useGroups";
 import { Word } from "../../types/Word";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { addWordToGroup, createGroup, deleteWordFromGroup } from "../../api/groups";
+import { addWordToGroup, createGroup, deleteGroup, deleteWordFromGroup } from "../../api/groups";
 
 const capitalize = (word: string) => `${word[0].toUpperCase()}${word.slice(1)}`;
 
@@ -58,6 +58,12 @@ const WordGroupDialog = ({ open, onClose }: IWordGroupDialogProps) => {
     onSuccess: () => setNewValue(""),
   });
 
+  const { mutate: removeGroup } = useMutation({
+    mutationFn: deleteGroup,
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["groups"] }),
+  });
+
+
   const { mutate: removeWord } = useMutation({
     mutationFn: deleteWordFromGroup,
     onSettled: () => queryClient.invalidateQueries({ queryKey: ["groups"] }),
@@ -87,6 +93,10 @@ const WordGroupDialog = ({ open, onClose }: IWordGroupDialogProps) => {
     }
   };
 
+  const handleRemoveGroup = (groupId: number) => {
+    removeGroup(groupId);
+  }
+
   const handleClose = () => {
     setSelectedGroup(null);
     onClose();
@@ -109,7 +119,19 @@ const WordGroupDialog = ({ open, onClose }: IWordGroupDialogProps) => {
         {!selectedGroup ? (
           <List>
             {groups.map((group) => (
-              <ListItem key={group.id} onClick={() => handleGroupClick(group)}>
+              <ListItem 
+              key={group.id}
+              sx={{ borderLeft: '1px solid lightblue', marginBottom: 2}} 
+              onClick={() => handleGroupClick(group)}
+              secondaryAction={
+                <IconButton
+                  edge="end"
+                  onClick={(e) => {e.stopPropagation(); handleRemoveGroup(group.id) }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              }
+              >
                 <ListItemText primary={group.name} />
               </ListItem>
             ))}

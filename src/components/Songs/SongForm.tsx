@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { TextField, Button, Grid, Typography, Container } from "@mui/material";
 import useAddSong from "../../hooks/songs/useAddSong";
 import { Word } from "../../types/Word";
+import useFetchSongs from "../../hooks/songs/useFetchSongs";
 
 const splitLyrics = (lyrics: string): Word[] => {
   const wordList: Word[] = [];
@@ -31,6 +32,7 @@ const SongForm: React.FC = () => {
   const { addSong, error, isPending } = useAddSong();
   const [songName, setSongName] = useState("");
   const [artist, setArtist] = useState("");
+  const { songs } = useFetchSongs();
   const [genre, setGenre] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [lyrics, setLyrics] = useState("");

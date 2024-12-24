@@ -15,6 +15,7 @@ const WordTableFilters = ({ filters, setFilters }: WordTableFiltersProps) => {
     const [line, setLine] = useState<string>("");
     const [verse, setVerse] = useState<string>("");
     const [text, setText] = useState<string>("");
+    const [spaceError, setSpaceError] = useState<boolean>(false);
     const [selectedGroups, setSelectedGroups] = useState<WordGroup[]>([]);
     const [selectedSongs, setSelectedSongs] = useState<Song[]>([]);
 
@@ -37,8 +38,12 @@ const WordTableFilters = ({ filters, setFilters }: WordTableFiltersProps) => {
   };
 
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setText(event.target.value)
+    const value = event.target.value;
+    if(!value.includes(" ")) { setText(event.target.value); setSpaceError(false);}
+    else setSpaceError(true);
+    
   };
+
 
   const handleVerseChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setVerse(event.target.value)
@@ -96,8 +101,10 @@ const WordTableFilters = ({ filters, setFilters }: WordTableFiltersProps) => {
         <Grid item xs={12}>
           <TextField
             variant="outlined"
-            label="Text"
+            label="Word Substring"
             value={text}
+            error={spaceError}
+            helperText={spaceError ? "Please enter single word!" : undefined  }
             onChange={handleTextChange}
             fullWidth
           />
